@@ -6,19 +6,21 @@ options {
     tokenVocab = QueryLexer;
 }
 
-start : expression EOF;
+run : expression EOF;
 
 expression:
-    // Support ()
-    LPAREN expression RPAREN                                                #lrExpr
-    // Support K:V
-    | leftExpr = expression operator = COLON rightExpr = expression         #eqExpr
-    // Support logical AND OR
-    | leftExpr = expression operator = (AND | OR) rightExpr = expression    #boolExpr
-    // Support NOT
-    | notClause                                                             #notExpr
-    // Support any value
-    | VALUE                                                                 #onlyValue
+    // ()
+    LPAREN expression RPAREN                                                #parenExpr
+    // K:V
+    | leftExpr = expression operator = COLON rightExpr = expression         #equal
+    // logical AND OR. AND has higher precendence than OR
+    | leftExpr = expression operator = AND rightExpr = expression           #logicAnd
+    | leftExpr = expression operator = OR rightExpr = expression            #logicOR
+    // NOT
+    | notClause                                                             #logicNot
+    // NULLVALUE flag
+    | NULLVALUE                                                             #nullValue
+    | VALUE                                                                 #value
 ;
 
 notClause:
